@@ -1,4 +1,4 @@
-const Author = require('../models/author');
+const Book = require('../models/book');
 
 module.exports = {
     getAllAuthors: async (page) => {
