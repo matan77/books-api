@@ -31,5 +31,16 @@ module.exports = {
             console.error(error);
             throw error;
         }
+    },
+    getAuthorByCountry: async (country) => {
+        try {
+            const authors = await Author.find({ country });
+            return authors.map(a => a._id.toString())
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
     }
+
+
 };
