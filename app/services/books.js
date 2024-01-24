@@ -1,5 +1,4 @@
 const Book = require('../models/book');
-const { getAuthorByCountry } = require('../services/authors');
 
 module.exports = {
     getAllBooks: async (page) => {
@@ -77,27 +76,40 @@ module.exports = {
     },
     getBooksByAuthorCountry: async (country, page) => {
         try {
-            // Find the author by country
-            const authors = await getAuthorByCountry(country);
-
-            if (!authors) {
-                return [];
-            }
-            const books = await Book.find({
-                'authors': {
-                    $in: authors
+            const books = await Book.aggregate([
+                {
+                    $lookup: {
+                        from: 'authors',
+                        localField: 'authors',
+                        foreignField: '_id',
+                        as: 'authorsInfo'
+                    }
+                },
+                {
+                    $match: {
+                        'authorsInfo.country': country
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        title: 1,
+                        publishingYear: 1,
+                        genres: 1,
+                        authors: 1,
+                        quantity: 1,
+                        price: 1
+                    }
+                },
+                {
+                    $skip: page * 10
+                },
+                {
+                    $limit: 10
                 }
-            }).skip(page * 10).limit(10);
+            ]);
+            return books;
 
-            return books.map(b => ({
-                id: b._id,
-                title: b.title,
-                publishingYear: b.publishingYear,
-                genres: b.genres,
-                authors: b.authors,
-                quantity: b.quantity,
-                price: b.price
-            }));
         } catch (error) {
             console.error(error);
             throw error;
