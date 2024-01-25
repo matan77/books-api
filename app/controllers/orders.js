@@ -3,8 +3,8 @@ const orderService = require('../services/orders');
 module.exports = {
     createOrder: async (req, res) => {
         try {
-            const orderData = req.body;
-            const newOrder = await orderService.createOrder(orderData);
+            const items = req.body;
+            const newOrder = await orderService.createOrder(items);
             res.json(newOrder);
         } catch (err) {
             console.error(err);
